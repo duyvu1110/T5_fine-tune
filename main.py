@@ -112,7 +112,7 @@ if __name__ == '__main__':
 
     def preprocess_function(examples):
         inputs = prefix
-        for ex in examples:
+        for ex in examples['key']:
             print('ex:')
             print(ex)
             inputs = inputs + ex
