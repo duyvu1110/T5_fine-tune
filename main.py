@@ -136,6 +136,7 @@ if __name__ == '__main__':
         save_total_limit=3,
         num_train_epochs=1,
         predict_with_generate=True,
+        report_to = None
     )
     data_collator = DataCollatorForSeq2Seq(tokenizer, model=model)
 
