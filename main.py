@@ -92,9 +92,9 @@ def convert_dataset(path):
     hg_ds = Dataset.from_pandas(df)
     return hg_ds
 if __name__ == '__main__':
-    train_ds = convert_dataset('D:\T5_fine-tune\VLSP2023_ComOM_training_v2')
-    dev_ds = convert_dataset('D:\T5_fine-tune\VLSP2023_ComOM_dev_v2')
-    test_ds = convert_dataset('D:\T5_fine-tune\VLSP2023_ComOM_testing_v2')
+    train_ds = convert_dataset('T5_fine-tune\VLSP2023_ComOM_training_v2')
+    dev_ds = convert_dataset('T5_fine-tune\VLSP2023_ComOM_dev_v2')
+    test_ds = convert_dataset('T5_fine-tune\VLSP2023_ComOM_testing_v2')
     tokenizer = AutoTokenizer.from_pretrained("VietAI/vit5-base")
     model = AutoModelForSeq2SeqLM.from_pretrained("VietAI/vit5-base")
     model.cuda()
