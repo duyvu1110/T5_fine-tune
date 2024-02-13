@@ -99,23 +99,24 @@ if __name__ == '__main__':
     # test_ds = convert_dataset('D:\T5_fine-tune\VLSP2023_ComOM_testing_v2')
     # test_ds.save_to_disk('test_dataset')
     train_ds = load_from_disk('train_dataset')
-    print(train_ds)
-    # tokenizer = AutoTokenizer.from_pretrained("VietAI/vit5-base")
-    # model = AutoModelForSeq2SeqLM.from_pretrained("VietAI/vit5-base")
-    # model.cuda()
+    dev_ds  = load_from_disk('dev_dataset')
+    test_ds = load_from_disk('test_dataset')
+    tokenizer = AutoTokenizer.from_pretrained("VietAI/vit5-base")
+    model = AutoModelForSeq2SeqLM.from_pretrained("VietAI/vit5-base")
+    model.cuda()
     prefix = 'Please extract five elements including subject, object, aspect, predicate, and comparison type in the sentence'
     max_input_length = 156
     max_target_length = 156
 
 
-    # def preprocess_function(examples):
-    #     inputs = [prefix + ex['__index_level_0__'] for ex in examples]
-    #     targets = [ex['0'] for ex in examples]
-    #     model_inputs = tokenizer(inputs, max_length=max_input_length, truncation=True)
-    #     # Setup the tokenizer for targets
-    #     with tokenizer.as_target_tokenizer():
-    #         labels = tokenizer(targets, max_length=max_target_length, truncation=True)
-    #     model_inputs["labels"] = labels["input_ids"]
-    #     return model_inputs
-    # tokenized_ds = train_ds.map(preprocess_function,batched = True)
-    # print(tokenized_ds)
+    def preprocess_function(examples):
+        inputs = [prefix + ex['__index_level_0__'] for ex in examples]
+        targets = [ex['0'] for ex in examples]
+        model_inputs = tokenizer(inputs, max_length=max_input_length, truncation=True)
+        # Setup the tokenizer for targets
+        with tokenizer.as_target_tokenizer():
+            labels = tokenizer(targets, max_length=max_target_length, truncation=True)
+        model_inputs["labels"] = labels["input_ids"]
+        return model_inputs
+    tokenized_ds = train_ds.map(preprocess_function,batched = True)
+    print(tokenized_ds)
