@@ -88,8 +88,8 @@ def convert_dataset(path):
                     else:
                         list_quintuple = list_quintuple + convert_quintuple(a[i])
                 data_dict[a[0]] = list_quintuple
-    dct = {k: [v] for k, v in data_dict.items()}
-    df = pd.DataFrame(list(dct.items()), columns=['key', 'value'])
+    #dct = {k: [v] for k, v in data_dict.items()}
+    df = pd.DataFrame(list(data_dict.items()), columns=['key', 'value'])
     #print(df.head())
     hg_ds = Dataset.hg_dataset = Dataset(pa.Table.from_pandas(df))
     return hg_ds
