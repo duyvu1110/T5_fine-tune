@@ -1,4 +1,4 @@
-import  os
+import os
 import re
 import json
 
@@ -10,12 +10,16 @@ import pandas as pd
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, Seq2SeqTrainingArguments, DataCollatorForSeq2Seq, \
     Seq2SeqTrainer
 import numpy as np
-
+import wandb
+wandb.login(key = 239be5b07ed02206e0e9e1c0afc955ee13a98900)
+os.environ["WANDB_PROJECT"]="T5-finetune"
 metric = evaluate.load("sacrebleu")
 meteor = evaluate.load('meteor')
+
+
 def read_file(f_name):
     data = []
-    with open(f_name, 'r',encoding = 'utf-8') as f:
+    with open(f_name, 'r', encoding='utf-8') as f:
         sent_tuples = []
         txt = False
         for l in f:
@@ -27,7 +31,7 @@ def read_file(f_name):
                 sent_tuples = []
                 txt = False
             elif l.startswith('{'):
-                try :
+                try:
                     json.loads(l)
                 except:
                     print(l)
@@ -41,6 +45,8 @@ def read_file(f_name):
             data.append(sent_tuples)
 
     return data
+
+
 def convert_quintuple(q):
     quintuple = json.loads(q)
     subject_value = " ".join([s.split("&&")[1] for s in quintuple["subject"]])
@@ -57,16 +63,18 @@ def convert_quintuple(q):
     formatted_output = f"{subject_value}; {object_value}; {aspect_value}; {predicate_value}; {label_value}"
     res = '(' + formatted_output + ')'
     return res
+
+
 def convert_dataset(path):
     files = os.listdir(path)
     data_dict = {}
     for f in files:
-        file_path = os.path.join(path,f)
+        file_path = os.path.join(path, f)
         # a = read_file(file_path)
         # print(a)
         senandtuple = []
 
-        with open(file_path, 'r', encoding= 'utf-8') as file:
+        with open(file_path, 'r', encoding='utf-8') as file:
             line = file.read().split('\n\n')
             for l in line:
                 if l == '':
@@ -86,20 +94,22 @@ def convert_dataset(path):
                 data_dict[a[0]] = convert_quintuple(a[1])
             elif len(a) > 2:
                 list_quintuple = ''
-                for i in range(1,len(a)):
-                    if i != len(a) -1:
+                for i in range(1, len(a)):
+                    if i != len(a) - 1:
                         list_quintuple = list_quintuple + convert_quintuple(a[i]) + ';'
                     else:
                         list_quintuple = list_quintuple + convert_quintuple(a[i])
                 data_dict[a[0]] = list_quintuple
-    #dct = {k: [v] for k, v in data_dict.items()}
+    # dct = {k: [v] for k, v in data_dict.items()}
     df = pd.DataFrame(list(data_dict.items()), columns=['key', 'value'])
-    #print(df.head())
+    # print(df.head())
     hg_ds = Dataset.hg_dataset = Dataset(pa.Table.from_pandas(df))
     return hg_ds
+
+
 if __name__ == '__main__':
     train_ds = convert_dataset('/kaggle/working/T5_fine-tune/VLSP2023_ComOM_training_v2')
-    #train_ds.save_to_disk('train_dataset')
+    # train_ds.save_to_disk('train_dataset')
     dev_ds = convert_dataset('/kaggle/working/T5_fine-tune/VLSP2023_ComOM_dev_v2')
     # dev_ds.save_to_disk('dev_dataset')
     test_ds = convert_dataset('/kaggle/working/T5_fine-tune/VLSP2023_ComOM_testing_v2')
@@ -114,8 +124,9 @@ if __name__ == '__main__':
     max_input_length = 156
     max_target_length = 156
 
+
     def preprocess_function(examples):
-        inputs  = [prefix + ex for ex in examples['key']]
+        inputs = [prefix + ex for ex in examples['key']]
         targets = [ex for ex in examples['value']]
         model_inputs = tokenizer(inputs, max_length=max_input_length, truncation=True)
         # Setup the tokenizer for targets
@@ -123,9 +134,11 @@ if __name__ == '__main__':
             labels = tokenizer(targets, max_length=max_target_length, truncation=True)
         model_inputs["labels"] = labels["input_ids"]
         return model_inputs
-    tokenized_ds_train = train_ds.map(preprocess_function, batched = True)
-    tokenized_ds_test = test_ds.map(preprocess_function, batched = True)
-    tokenized_ds_dev = dev_ds.map(preprocess_function,batched = True)
+
+
+    tokenized_ds_train = train_ds.map(preprocess_function, batched=True)
+    tokenized_ds_test = test_ds.map(preprocess_function, batched=True)
+    tokenized_ds_dev = dev_ds.map(preprocess_function, batched=True)
     args = Seq2SeqTrainingArguments(
         "T5_fine_tune",
         evaluation_strategy="epoch",
@@ -136,9 +149,10 @@ if __name__ == '__main__':
         save_total_limit=3,
         num_train_epochs=1,
         predict_with_generate=True,
-        report_to = None
+        report_to='wandb'
     )
     data_collator = DataCollatorForSeq2Seq(tokenizer, model=model)
+
 
     def postprocess_text(preds, labels):
         preds = [pred.strip() for pred in preds]
