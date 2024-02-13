@@ -110,9 +110,7 @@ if __name__ == '__main__':
 
 
     def preprocess_function(examples):
-        for ex in examples:
-            print(type(ex))
-            break
+        print(type(examples))
         inputs = [prefix + ex['__index_level_0__'] for ex in examples]
         targets = [ex['0'] for ex in examples]
         model_inputs = tokenizer(inputs, max_length=max_input_length, truncation=True)
