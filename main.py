@@ -7,7 +7,8 @@ from datasets import Dataset, load_from_disk
 from datasets import load_dataset
 import pyarrow as pa
 import pandas as pd
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, Seq2SeqTrainingArguments, DataCollatorForSeq2Seq
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, Seq2SeqTrainingArguments, DataCollatorForSeq2Seq, \
+    Seq2SeqTrainer
 import numpy as np
 
 metric = evaluate.load("sacrebleu")
