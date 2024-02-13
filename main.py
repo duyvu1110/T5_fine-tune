@@ -88,19 +88,21 @@ def convert_dataset(path):
                     else:
                         list_quintuple = list_quintuple + convert_quintuple(a[i])
                 data_dict[a[0]] = list_quintuple
-    df = pd.DataFrame.from_dict(data_dict, orient='index')
+    dct = {k: [v] for k, v in data_dict.items()}
+    df = pd.DataFrame(list(dct.items()), columns=['key', 'value'])
+    #print(df.head())
     hg_ds = Dataset.hg_dataset = Dataset(pa.Table.from_pandas(df))
     return hg_ds
 if __name__ == '__main__':
-    # train_ds = convert_dataset('D:\T5_fine-tune\VLSP2023_ComOM_training_v2')
+    # train_ds = convert_dataset('D:\T5_fine-tune\\test')
     # train_ds.save_to_disk('train_dataset')
     # dev_ds = convert_dataset('D:\T5_fine-tune\VLSP2023_ComOM_dev_v2')
     # dev_ds.save_to_disk('dev_dataset')
     # test_ds = convert_dataset('D:\T5_fine-tune\VLSP2023_ComOM_testing_v2')
     # test_ds.save_to_disk('test_dataset')
     train_ds = load_from_disk('train_dataset')
-    dev_ds  = load_from_disk('dev_dataset')
-    test_ds = load_from_disk('test_dataset')
+    # dev_ds  = load_from_disk('dev_dataset')
+    # test_ds = load_from_disk('test_dataset')
     tokenizer = AutoTokenizer.from_pretrained("VietAI/vit5-base")
     model = AutoModelForSeq2SeqLM.from_pretrained("VietAI/vit5-base")
     model.cuda()

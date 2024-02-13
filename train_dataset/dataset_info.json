@@ -2,13 +2,16 @@
   "citation": "",
   "description": "",
   "features": {
-    "0": {
+    "key": {
       "dtype": "string",
       "_type": "Value"
     },
-    "__index_level_0__": {
-      "dtype": "string",
-      "_type": "Value"
+    "value": {
+      "feature": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "_type": "Sequence"
     }
   },
   "homepage": "",
