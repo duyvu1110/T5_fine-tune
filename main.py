@@ -99,6 +99,7 @@ if __name__ == '__main__':
     # test_ds = convert_dataset('D:\T5_fine-tune\VLSP2023_ComOM_testing_v2')
     # test_ds.save_to_disk('test_dataset')
     train_ds = load_from_disk('train_dataset')
+    print(train_ds)
     # tokenizer = AutoTokenizer.from_pretrained("VietAI/vit5-base")
     # model = AutoModelForSeq2SeqLM.from_pretrained("VietAI/vit5-base")
     # model.cuda()
