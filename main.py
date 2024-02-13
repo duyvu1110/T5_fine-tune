@@ -111,8 +111,9 @@ if __name__ == '__main__':
     def preprocess_function(examples):
         inputs = prefix
         for ex in examples:
+            print('ex:')
             print(ex)
-            inputs = inputs + ex.split('__index_level_0__')[1]
+            inputs = inputs + ex
         targets = [ex.split('0')[1].split('__index_level_0__')[0] for ex in examples]
         model_inputs = tokenizer(inputs, max_length=max_input_length, truncation=True)
         # Setup the tokenizer for targets
