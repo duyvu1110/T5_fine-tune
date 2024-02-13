@@ -1,14 +1,17 @@
 import  os
 import re
 import json
+
+import evaluate
 from datasets import Dataset, load_from_disk
 from datasets import load_dataset
 import pyarrow as pa
 import pandas as pd
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, Seq2SeqTrainingArguments, DataCollatorForSeq2Seq
+import numpy as np
 
-
-pattern = ('\{.*"subject": \[.*\], "object": \[.*\], "aspect": \[.*\], "predicate": \[.*\], "label": ".*"\}')
+metric = evaluate.load("sacrebleu")
+meteor = evaluate.load('meteor')
 def read_file(f_name):
     data = []
     with open(f_name, 'r',encoding = 'utf-8') as f:
@@ -94,11 +97,11 @@ def convert_dataset(path):
     hg_ds = Dataset.hg_dataset = Dataset(pa.Table.from_pandas(df))
     return hg_ds
 if __name__ == '__main__':
-    train_ds = convert_dataset('/kaggle/working/T5_fine-tune/test')
+    train_ds = convert_dataset('/kaggle/working/T5_fine-tune/VLSP2023_ComOM_training_v2')
     #train_ds.save_to_disk('train_dataset')
-    # dev_ds = convert_dataset('D:\T5_fine-tune\VLSP2023_ComOM_dev_v2')
+    dev_ds = convert_dataset('/kaggle/working/T5_fine-tune/VLSP2023_ComOM_dev_v2')
     # dev_ds.save_to_disk('dev_dataset')
-    # test_ds = convert_dataset('D:\T5_fine-tune\VLSP2023_ComOM_testing_v2')
+    test_ds = convert_dataset('/kaggle/working/T5_fine-tune/VLSP2023_ComOM_testing_v2')
     # test_ds.save_to_disk('test_dataset')
     # train_ds = load_from_disk('train_dataset')
     # # dev_ds  = load_from_disk('dev_dataset')
@@ -119,5 +122,56 @@ if __name__ == '__main__':
             labels = tokenizer(targets, max_length=max_target_length, truncation=True)
         model_inputs["labels"] = labels["input_ids"]
         return model_inputs
-    tokenized_ds = train_ds.map(preprocess_function, batched = True)
-    print(tokenized_ds)
+    tokenized_ds_train = train_ds.map(preprocess_function, batched = True)
+    tokenized_ds_test = test_ds.map(preprocess_function, batched = True)
+    tokenized_ds_dev = dev_ds.map(preprocess_function,batched = True)
+    args = Seq2SeqTrainingArguments(
+        "T5_fine_tune",
+        evaluation_strategy="epoch",
+        learning_rate=2e-5,
+        per_device_train_batch_size=16,
+        per_device_eval_batch_size=16,
+        weight_decay=0.01,
+        save_total_limit=3,
+        num_train_epochs=1,
+        predict_with_generate=True,
+    )
+    data_collator = DataCollatorForSeq2Seq(tokenizer, model=model)
+
+    def postprocess_text(preds, labels):
+        preds = [pred.strip() for pred in preds]
+        labels = [[label.strip()] for label in labels]
+        return preds, labels
+
+
+    def compute_metrics(eval_preds):
+        preds, labels = eval_preds
+        if isinstance(preds, tuple):
+            preds = preds[0]
+        decoded_preds = tokenizer.batch_decode(preds, skip_special_tokens=True)
+        # Replace -100 in the labels as we can't decode them.
+        labels = np.where(labels != -100, labels, tokenizer.pad_token_id)
+        decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
+        # Some simple post-processing
+        decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
+        result = metric.compute(predictions=decoded_preds, references=decoded_labels)
+        meteor_result = meteor.compute(predictions=decoded_preds, references=decoded_labels)
+        prediction_lens = [np.count_nonzero(pred != tokenizer.pad_token_id) for pred in preds]
+        result = {'bleu': result['score']}
+        result["gen_len"] = np.mean(prediction_lens)
+        result["meteor"] = meteor_result["meteor"]
+        result = {k: round(v, 4) for k, v in result.items()}
+        return result
+
+
+    trainer = Seq2SeqTrainer(
+        model,
+        args,
+        train_dataset=tokenized_ds_train,
+        eval_dataset=tokenized_ds_dev,
+        data_collator=data_collator,
+        tokenizer=tokenizer,
+        compute_metrics=compute_metrics
+    )
+    trainer.train()
+    trainer.save_model()
