@@ -1,7 +1,7 @@
 import  os
 import re
 import json
-from datasets import Dataset
+from datasets import Dataset, load_from_disk
 from datasets import load_dataset
 import pyarrow as pa
 import pandas as pd
@@ -92,25 +92,29 @@ def convert_dataset(path):
     hg_ds = Dataset.from_pandas(df)
     return hg_ds
 if __name__ == '__main__':
-    train_ds = convert_dataset('T5_fine-tune\VLSP2023_ComOM_training_v2')
-    dev_ds = convert_dataset('T5_fine-tune\VLSP2023_ComOM_dev_v2')
-    test_ds = convert_dataset('T5_fine-tune\VLSP2023_ComOM_testing_v2')
-    tokenizer = AutoTokenizer.from_pretrained("VietAI/vit5-base")
-    model = AutoModelForSeq2SeqLM.from_pretrained("VietAI/vit5-base")
-    model.cuda()
+    # train_ds = convert_dataset('D:\T5_fine-tune\VLSP2023_ComOM_training_v2')
+    # train_ds.save_to_disk('train_dataset')
+    # dev_ds = convert_dataset('D:\T5_fine-tune\VLSP2023_ComOM_dev_v2')
+    # dev_ds.save_to_disk('dev_dataset')
+    # test_ds = convert_dataset('D:\T5_fine-tune\VLSP2023_ComOM_testing_v2')
+    # test_ds.save_to_disk('test_dataset')
+    train_ds = load_from_disk('train_dataset')
+    # tokenizer = AutoTokenizer.from_pretrained("VietAI/vit5-base")
+    # model = AutoModelForSeq2SeqLM.from_pretrained("VietAI/vit5-base")
+    # model.cuda()
     prefix = 'Please extract five elements including subject, object, aspect, predicate, and comparison type in the sentence'
     max_input_length = 156
     max_target_length = 156
 
 
-    def preprocess_function(examples):
-        inputs = [prefix + ex['__index_level_0__'] for ex in examples]
-        targets = [ex['0'] for ex in examples]
-        model_inputs = tokenizer(inputs, max_length=max_input_length, truncation=True)
-        # Setup the tokenizer for targets
-        with tokenizer.as_target_tokenizer():
-            labels = tokenizer(targets, max_length=max_target_length, truncation=True)
-        model_inputs["labels"] = labels["input_ids"]
-        return model_inputs
-    tokenized_ds = train_ds.map(preprocess_function,batched = True)
-    print(tokenized_ds)
+    # def preprocess_function(examples):
+    #     inputs = [prefix + ex['__index_level_0__'] for ex in examples]
+    #     targets = [ex['0'] for ex in examples]
+    #     model_inputs = tokenizer(inputs, max_length=max_input_length, truncation=True)
+    #     # Setup the tokenizer for targets
+    #     with tokenizer.as_target_tokenizer():
+    #         labels = tokenizer(targets, max_length=max_target_length, truncation=True)
+    #     model_inputs["labels"] = labels["input_ids"]
+    #     return model_inputs
+    # tokenized_ds = train_ds.map(preprocess_function,batched = True)
+    # print(tokenized_ds)
