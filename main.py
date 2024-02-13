@@ -111,7 +111,7 @@ if __name__ == '__main__':
     max_target_length = 156
 
     def preprocess_function(examples):
-        imputs = [prefix + ex for ex in examples['key']]
+        inputs  = [prefix + ex for ex in examples['key']]
         targets = [ex for ex in examples['value']]
         model_inputs = tokenizer(inputs, max_length=max_input_length, truncation=True)
         # Setup the tokenizer for targets
