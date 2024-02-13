@@ -110,16 +110,17 @@ if __name__ == '__main__':
     print(train_ds[0])
     print(train_ds[0][0])
 
-    # def preprocess_function(examples):
-    #     inputs = prefix
-    #     for ex in examples:
-    #         inputs = inputs + ex.split('__index_level_0__')[1]
-    #     targets = [ex.split('0')[1].split('__index_level_0__')[0] for ex in examples]
-    #     model_inputs = tokenizer(inputs, max_length=max_input_length, truncation=True)
-    #     # Setup the tokenizer for targets
-    #     with tokenizer.as_target_tokenizer():
-    #         labels = tokenizer(targets, max_length=max_target_length, truncation=True)
-    #     model_inputs["labels"] = labels["input_ids"]
-    #     return model_inputs
-    # tokenized_ds = train_ds.map(preprocess_function, batched = True)
-    # print(tokenized_ds)
+    def preprocess_function(examples):
+        inputs = prefix
+        for ex in examples:
+            print(ex)
+            inputs = inputs + ex.split('__index_level_0__')[1]
+        targets = [ex.split('0')[1].split('__index_level_0__')[0] for ex in examples]
+        model_inputs = tokenizer(inputs, max_length=max_input_length, truncation=True)
+        # Setup the tokenizer for targets
+        with tokenizer.as_target_tokenizer():
+            labels = tokenizer(targets, max_length=max_target_length, truncation=True)
+        model_inputs["labels"] = labels["input_ids"]
+        return model_inputs
+    tokenized_ds = train_ds.map(preprocess_function, batched = True)
+    print(tokenized_ds)
