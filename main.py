@@ -89,7 +89,7 @@ def convert_dataset(path):
                         list_quintuple = list_quintuple + convert_quintuple(a[i])
                 data_dict[a[0]] = list_quintuple
     df = pd.DataFrame.from_dict(data_dict, orient='index')
-    hg_ds = Dataset.from_pandas(df)
+    hg_ds = Dataset.hg_dataset = Dataset(pa.Table.from_pandas(df))
     return hg_ds
 if __name__ == '__main__':
     # train_ds = convert_dataset('D:\T5_fine-tune\VLSP2023_ComOM_training_v2')
