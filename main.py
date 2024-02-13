@@ -107,8 +107,6 @@ if __name__ == '__main__':
     prefix = 'Please extract five elements including subject, object, aspect, predicate, and comparison type in the sentence'
     max_input_length = 156
     max_target_length = 156
-    print(train_ds[0])
-    print(train_ds[0][0])
 
     def preprocess_function(examples):
         inputs = prefix
