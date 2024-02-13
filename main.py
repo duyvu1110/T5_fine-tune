@@ -11,7 +11,7 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, Seq2SeqTrainingAr
     Seq2SeqTrainer
 import numpy as np
 import wandb
-wandb.login(key = 239be5b07ed02206e0e9e1c0afc955ee13a98900)
+wandb.login(key = '239be5b07ed02206e0e9e1c0afc955ee13a98900')
 os.environ["WANDB_PROJECT"]="T5-finetune"
 metric = evaluate.load("sacrebleu")
 meteor = evaluate.load('meteor')
