@@ -112,13 +112,13 @@ if __name__ == '__main__':
     # train_ds.save_to_disk('train_dataset')
     dev_ds = convert_dataset('/kaggle/working/T5_fine-tune/VLSP2023_ComOM_dev_v2')
     # dev_ds.save_to_disk('dev_dataset')
-    test_ds = convert_dataset('/kaggle/working/T5_fine-tune/VLSP2023_ComOM_testing_v2')
+    #test_ds = convert_dataset('/kaggle/working/T5_fine-tune/VLSP2023_ComOM_testing_v2')
     # test_ds.save_to_disk('test_dataset')
     # train_ds = load_from_disk('train_dataset')
     # # dev_ds  = load_from_disk('dev_dataset')
     # # test_ds = load_from_disk('test_dataset')
-    tokenizer = AutoTokenizer.from_pretrained("VietAI/vit5-large")
-    model = AutoModelForSeq2SeqLM.from_pretrained("VietAI/vit5-large")
+    tokenizer = AutoTokenizer.from_pretrained("VietAI/vit5-base")
+    model = AutoModelForSeq2SeqLM.from_pretrained("VietAI/vit5-base")
     model.cuda()
     prefix = 'Please extract five elements including subject, object, aspect, predicate, and comparison type in the sentence'
     max_input_length = 156
@@ -137,7 +137,7 @@ if __name__ == '__main__':
 
 
     tokenized_ds_train = train_ds.map(preprocess_function, batched=True)
-    tokenized_ds_test = test_ds.map(preprocess_function, batched=True)
+    #tokenized_ds_test = test_ds.map(preprocess_function, batched=True)
     tokenized_ds_dev = dev_ds.map(preprocess_function, batched=True)
     args = Seq2SeqTrainingArguments(
         "T5_fine_tune",
