@@ -117,8 +117,8 @@ if __name__ == '__main__':
     # train_ds = load_from_disk('train_dataset')
     # # dev_ds  = load_from_disk('dev_dataset')
     # # test_ds = load_from_disk('test_dataset')
-    tokenizer = AutoTokenizer.from_pretrained("VietAI/vit5-base")
-    model = AutoModelForSeq2SeqLM.from_pretrained("VietAI/vit5-base")
+    tokenizer = AutoTokenizer.from_pretrained("VietAI/vit5-large")
+    model = AutoModelForSeq2SeqLM.from_pretrained("VietAI/vit5-large")
     model.cuda()
     prefix = 'Please extract five elements including subject, object, aspect, predicate, and comparison type in the sentence'
     max_input_length = 156
@@ -147,9 +147,10 @@ if __name__ == '__main__':
         per_device_eval_batch_size=16,
         weight_decay=0.01,
         save_total_limit=3,
-        num_train_epochs=20,
+        num_train_epochs=50,
         predict_with_generate=True,
-        report_to='wandb'
+        report_to='wandb',
+
     )
     data_collator = DataCollatorForSeq2Seq(tokenizer, model=model)
 
@@ -187,12 +188,12 @@ if __name__ == '__main__':
         eval_dataset=tokenized_ds_dev,
         data_collator=data_collator,
         tokenizer=tokenizer,
-        compute_metrics=compute_metrics
+        compute_metrics=compute_metrics,
+        early_stopping=True
     )
     trainer.train()
     trainer.save_model()
-    trainer.evaluate()
-    text = 'Trong khi đó, mặt lưng sau của iPhone 13 lại được làm bằng chất liệu nhôm và kính, mang đến cảm giác sang trọng và bắt mắt hơn.'
+    text = 'Hộp đựng Galaxy S20 Ultra cũng có kích thước lớn nhất trong Galaxy S20 Series vừa ra mắt.'
     encoding = tokenizer(text, return_tensors="pt")
     input_ids, attention_masks = encoding["input_ids"].to("cuda"), encoding["attention_mask"].to("cuda")
     outputs = model.generate(
