@@ -189,7 +189,6 @@ if __name__ == '__main__':
         data_collator=data_collator,
         tokenizer=tokenizer,
         compute_metrics=compute_metrics,
-        early_stopping=True
     )
     trainer.train()
     trainer.save_model()
