@@ -147,7 +147,7 @@ if __name__ == '__main__':
         per_device_eval_batch_size=16,
         weight_decay=0.01,
         save_total_limit=3,
-        num_train_epochs=10,
+        num_train_epochs=20,
         predict_with_generate=True,
         report_to='wandb'
     )
@@ -191,3 +191,15 @@ if __name__ == '__main__':
     )
     trainer.train()
     trainer.save_model()
+    trainer.evaluate()
+    text = 'Trong khi đó, mặt lưng sau của iPhone 13 lại được làm bằng chất liệu nhôm và kính, mang đến cảm giác sang trọng và bắt mắt hơn.'
+    encoding = tokenizer(text, return_tensors="pt")
+    input_ids, attention_masks = encoding["input_ids"].to("cuda"), encoding["attention_mask"].to("cuda")
+    outputs = model.generate(
+        input_ids=input_ids, attention_mask=attention_masks,
+        max_length=156,
+        early_stopping=True
+    )
+    for output in outputs:
+        line = tokenizer.decode(output, skip_special_tokens=True, clean_up_tokenization_spaces=True)
+        print(line)
