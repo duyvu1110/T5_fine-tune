@@ -107,7 +107,7 @@ def convert_dataset(path):
     return hg_ds
 
 
-#if __name__ == '__main__':
+if __name__ == '__main__':
     train_ds = convert_dataset('/kaggle/working/T5_fine-tune/VLSP2023_ComOM_training_v2')
     # train_ds.save_to_disk('train_dataset')
     dev_ds = convert_dataset('/kaggle/working/T5_fine-tune/VLSP2023_ComOM_dev_v2')
