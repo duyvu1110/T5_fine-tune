@@ -46,7 +46,7 @@ Tuy nhiên, Google pixel 7a chỉ đạt chứng nhận IP67.	Tuy nhiên , Googl
 
 Trong khi đó, iPhone 13 lại có xếp hạng kháng nước, chống bụi chuẩn IP68.	Trong khi đó , iPhone 13 lại có xếp hạng kháng nước , chống bụi chuẩn IP68 .
 
-Nhờ vậy, chiếc điện thoại nhà táo khuyết có thể ngâm nước sâu hơn và lâu hơn.	Nhờ vậy , chiếc điện thoại nhà táo khuyết có thể ngâm nước sâu hơn và lâu hơn .
+Nhờ vậy, chiếc điện thoại nhà táo khuyết có thể ngâm nước sâu hơn và lâu hơn. 	Nhờ vậy , chiếc điện thoại nhà táo khuyết có thể ngâm nước sâu hơn và lâu hơn .
 {"subject": ["4&&chiếc", "5&&điện", "6&&thoại", "7&&nhà", "8&&táo", "9&&khuyết"], "object": [], "aspect": ["12&&ngâm", "13&&nước"], "predicate": ["14&&sâu", "15&&hơn"], "label": "COM+"}
 {"subject": ["4&&chiếc", "5&&điện", "6&&thoại", "7&&nhà", "8&&táo", "9&&khuyết"], "object": [], "aspect": ["12&&ngâm", "13&&nước"], "predicate": ["17&&lâu", "18&&hơn"], "label": "COM+"}
 

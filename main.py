@@ -107,7 +107,7 @@ def convert_dataset(path):
     return hg_ds
 
 
-if __name__ == '__main__':
+#if __name__ == '__main__':
     train_ds = convert_dataset('/kaggle/working/T5_fine-tune/VLSP2023_ComOM_training_v2')
     # train_ds.save_to_disk('train_dataset')
     dev_ds = convert_dataset('/kaggle/working/T5_fine-tune/VLSP2023_ComOM_dev_v2')
@@ -117,8 +117,8 @@ if __name__ == '__main__':
     # train_ds = load_from_disk('train_dataset')
     # # dev_ds  = load_from_disk('dev_dataset')
     # # test_ds = load_from_disk('test_dataset')
-    tokenizer = AutoTokenizer.from_pretrained("VietAI/vit5-base")
-    model = AutoModelForSeq2SeqLM.from_pretrained("VietAI/vit5-base")
+    tokenizer = AutoTokenizer.from_pretrained("google/mt5-base")
+    model = AutoModelForSeq2SeqLM.from_pretrained("google/mt5-base")
     model.cuda()
     prefix = 'Please extract five elements including subject, object, aspect, predicate, and comparison type in the sentence'
     max_input_length = 156
@@ -142,12 +142,12 @@ if __name__ == '__main__':
     args = Seq2SeqTrainingArguments(
         "T5_fine_tune",
         evaluation_strategy="epoch",
-        learning_rate=2e-5,
-        per_device_train_batch_size=16,
-        per_device_eval_batch_size=16,
+        learning_rate=3e-4,
+        per_device_train_batch_size=10,
+        per_device_eval_batch_size=10,
         weight_decay=0.01,
-        save_total_limit=3,
-        num_train_epochs=25,
+        save_total_limit=1,
+        num_train_epochs=30,
         predict_with_generate=True,
         report_to='wandb',
 
