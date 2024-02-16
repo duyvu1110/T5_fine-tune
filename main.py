@@ -89,7 +89,7 @@ def convert_dataset(path):
         for item in senandtuple:
             a = item.split('\n')
             if len(a) == 1:
-                data_dict[a[0]] = "(None;None;None;None;None)"
+                continue
             elif len(a) == 2:
                 data_dict[a[0]] = convert_quintuple(a[1])
             elif len(a) > 2:
@@ -117,8 +117,8 @@ if __name__ == '__main__':
     # train_ds = load_from_disk('train_dataset')
     # # dev_ds  = load_from_disk('dev_dataset')
     # # test_ds = load_from_disk('test_dataset')
-    tokenizer = AutoTokenizer.from_pretrained("VietAI/vit5-large")
-    model = AutoModelForSeq2SeqLM.from_pretrained("VietAI/vit5-large")
+    tokenizer = AutoTokenizer.from_pretrained("VietAI/vit5-base")
+    model = AutoModelForSeq2SeqLM.from_pretrained("VietAI/vit5-base")
     model.cuda()
     prefix = 'Please extract five elements including subject, object, aspect, predicate, and comparison type in the sentence'
     max_input_length = 156
@@ -142,9 +142,9 @@ if __name__ == '__main__':
     args = Seq2SeqTrainingArguments(
         "T5_fine_tune",
         evaluation_strategy="epoch",
-        learning_rate=3e-4,
-        per_device_train_batch_size=1,
-        per_device_eval_batch_size=1,
+        learning_rate=2e-5,
+        per_device_train_batch_size=16,
+        per_device_eval_batch_size=16,
         weight_decay=0.01,
         save_total_limit=1,
         num_train_epochs=25,
@@ -192,14 +192,4 @@ if __name__ == '__main__':
     )
     trainer.train()
     trainer.save_model()
-    text = 'Hộp đựng Galaxy S20 Ultra cũng có kích thước lớn nhất trong Galaxy S20 Series vừa ra mắt.'
-    encoding = tokenizer(text, return_tensors="pt")
-    input_ids, attention_masks = encoding["input_ids"].to("cuda"), encoding["attention_mask"].to("cuda")
-    outputs = model.generate(
-        input_ids=input_ids, attention_mask=attention_masks,
-        max_length=156,
-        early_stopping=True
-    )
-    for output in outputs:
-        line = tokenizer.decode(output, skip_special_tokens=True, clean_up_tokenization_spaces=True)
-        print(line)
+
