@@ -147,7 +147,7 @@ if __name__ == '__main__':
         per_device_eval_batch_size=16,
         weight_decay=0.01,
         save_total_limit=1,
-        num_train_epochs=30,
+        num_train_epochs=25,
         predict_with_generate=True,
         report_to='wandb',
 
