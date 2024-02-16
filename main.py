@@ -8,7 +8,7 @@ from datasets import load_dataset
 import pyarrow as pa
 import pandas as pd
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, Seq2SeqTrainingArguments, DataCollatorForSeq2Seq, \
-    Seq2SeqTrainer, DataCollator, Trainer
+    Seq2SeqTrainer, DataCollator, Trainer, TrainingArguments
 import numpy as np
 import wandb
 wandb.login(key = '239be5b07ed02206e0e9e1c0afc955ee13a98900')
@@ -148,7 +148,6 @@ if __name__ == '__main__':
         weight_decay=0.01,
         save_total_limit=1,
         num_train_epochs=25,
-        predict_with_generate=True,
         report_to='wandb',
 
     )
@@ -171,8 +170,12 @@ if __name__ == '__main__':
         decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
         # Some simple post-processing
         decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
-        result = f1_metric.compute(predictions = decoded_preds, references = decoded_labels)
-        return result
+        f1_macro = f1_metric.compute(predictions = decoded_preds, references = decoded_labels, average = 'macro')
+        f1_micro = f1_metric.compute(predictions = decoded_preds, references = decoded_labels, average = 'micro')
+        return {
+            'macro' : f1_macro,
+            'micro' : f1_micro,
+        }
 
 
     trainer = Trainer(
