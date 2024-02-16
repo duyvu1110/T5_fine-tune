@@ -8,7 +8,7 @@ from datasets import load_dataset
 import pyarrow as pa
 import pandas as pd
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, Seq2SeqTrainingArguments, DataCollatorForSeq2Seq, \
-    Seq2SeqTrainer
+    Seq2SeqTrainer, DataCollator, Trainer
 import numpy as np
 import wandb
 wandb.login(key = '239be5b07ed02206e0e9e1c0afc955ee13a98900')
@@ -139,7 +139,7 @@ if __name__ == '__main__':
     tokenized_ds_train = train_ds.map(preprocess_function, batched=True)
     #tokenized_ds_test = test_ds.map(preprocess_function, batched=True)
     tokenized_ds_dev = dev_ds.map(preprocess_function, batched=True)
-    args = Seq2SeqTrainingArguments(
+    args = TrainingArguments(
         "T5_fine_tune",
         evaluation_strategy="epoch",
         learning_rate=2e-5,
@@ -152,7 +152,7 @@ if __name__ == '__main__':
         report_to='wandb',
 
     )
-    data_collator = DataCollatorForSeq2Seq(tokenizer, model=model)
+    data_collator = DataCollator(tokenizer, model=model)
 
 
     def postprocess_text(preds, labels):
@@ -160,7 +160,7 @@ if __name__ == '__main__':
         labels = [[label.strip()] for label in labels]
         return preds, labels
 
-
+    f1_metric = evaluate.load('f1')
     def compute_metrics(eval_preds):
         preds, labels = eval_preds
         if isinstance(preds, tuple):
@@ -171,17 +171,11 @@ if __name__ == '__main__':
         decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
         # Some simple post-processing
         decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
-        result = metric.compute(predictions=decoded_preds, references=decoded_labels)
-        meteor_result = meteor.compute(predictions=decoded_preds, references=decoded_labels)
-        prediction_lens = [np.count_nonzero(pred != tokenizer.pad_token_id) for pred in preds]
-        result = {'bleu': result['score']}
-        result["gen_len"] = np.mean(prediction_lens)
-        result["meteor"] = meteor_result["meteor"]
-        result = {k: round(v, 4) for k, v in result.items()}
+        result = f1_metric.compute(predictions = decoded_preds, references = decoded_labels)
         return result
 
 
-    trainer = Seq2SeqTrainer(
+    trainer = Trainer(
         model,
         args,
         train_dataset=tokenized_ds_train,
