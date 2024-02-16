@@ -8,7 +8,7 @@ from datasets import load_dataset
 import pyarrow as pa
 import pandas as pd
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, Seq2SeqTrainingArguments, DataCollatorForSeq2Seq, \
-    Seq2SeqTrainer, DataCollator, Trainer, TrainingArguments, DataCollatorWithPadding
+    Seq2SeqTrainer
 import numpy as np
 import wandb
 wandb.login(key = '239be5b07ed02206e0e9e1c0afc955ee13a98900')
@@ -117,10 +117,10 @@ if __name__ == '__main__':
     # train_ds = load_from_disk('train_dataset')
     # # dev_ds  = load_from_disk('dev_dataset')
     # # test_ds = load_from_disk('test_dataset')
-    tokenizer = AutoTokenizer.from_pretrained("VietAI/vit5-base")
-    model = AutoModelForSeq2SeqLM.from_pretrained("VietAI/vit5-base")
+    tokenizer = AutoTokenizer.from_pretrained("VietAI/vit5-large")
+    model = AutoModelForSeq2SeqLM.from_pretrained("VietAI/vit5-large")
     model.cuda()
-    prefix = 'Please extract five elements including subject, object, aspect, predicate, comparison type in the sentence'
+    prefix = 'Please extract five elements including subject, object, aspect, predicate, and comparison type in the sentence'
     max_input_length = 156
     max_target_length = 156
 
@@ -142,17 +142,17 @@ if __name__ == '__main__':
     args = Seq2SeqTrainingArguments(
         "T5_fine_tune",
         evaluation_strategy="epoch",
-        save_strategy='epoch',
         learning_rate=2e-5,
         per_device_train_batch_size=16,
         per_device_eval_batch_size=16,
         weight_decay=0.01,
         save_total_limit=1,
         num_train_epochs=50,
+        predict_with_generate=True,
         report_to='wandb',
-        load_best_model_at_end=True,
+
     )
-    data_collator = DataCollatorForSeq2Seq(tokenizer, model =model)
+    data_collator = DataCollatorForSeq2Seq(tokenizer, model=model)
 
 
     def postprocess_text(preds, labels):
@@ -160,7 +160,7 @@ if __name__ == '__main__':
         labels = [[label.strip()] for label in labels]
         return preds, labels
 
-    f1_metric = evaluate.load('f1')
+
     def compute_metrics(eval_preds):
         preds, labels = eval_preds
         if isinstance(preds, tuple):
@@ -171,12 +171,12 @@ if __name__ == '__main__':
         decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
         # Some simple post-processing
         decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
-        f1_macro = f1_metric.compute(predictions = decoded_preds, references = decoded_labels, average = 'macro')
-        f1_micro = f1_metric.compute(predictions = decoded_preds, references = decoded_labels, average = 'micro')
-        return {
-            'macro' : f1_macro,
-            'micro' : f1_micro,
-        }
+        #result = metric.compute(predictions=decoded_preds, references=decoded_labels)
+        #meteor_result = meteor.compute(predictions=decoded_preds, references=decoded_labels)
+        #prediction_lens = [np.count_nonzero(pred != tokenizer.pad_token_id) for pred in preds]
+        f1_metric = evaluate.load('f1')
+        macro = f1_metric.compute(predictions = decoded_preds, references = decoded_labels, average = 'macro')
+        return macro
 
 
     trainer = Seq2SeqTrainer(
@@ -190,4 +190,3 @@ if __name__ == '__main__':
     )
     trainer.train()
     trainer.save_model()
-
