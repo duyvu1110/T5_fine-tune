@@ -142,6 +142,7 @@ if __name__ == '__main__':
     args = TrainingArguments(
         "T5_fine_tune",
         evaluation_strategy="epoch",
+        save_strategy='epoch',
         learning_rate=2e-5,
         per_device_train_batch_size=16,
         per_device_eval_batch_size=16,
