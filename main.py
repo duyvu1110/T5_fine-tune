@@ -60,7 +60,7 @@ def convert_quintuple(q):
         object_value = 'None'
     if len(quintuple["aspect"]) == 0:
         aspect_value = 'None'
-    formatted_output = f"{subject_value}; {object_value}; {aspect_value}; {predicate_value}; {label_value}"
+    formatted_output = f"{subject_value}, {object_value}, {aspect_value}, {predicate_value}, {label_value}"
     res = '(' + formatted_output + ')'
     return res
 
@@ -89,14 +89,14 @@ def convert_dataset(path):
         for item in senandtuple:
             a = item.split('\n')
             if len(a) == 1:
-                continue
+                data_dict[a[0]] = '(None,None,None,None,None)'
             elif len(a) == 2:
                 data_dict[a[0]] = convert_quintuple(a[1])
             elif len(a) > 2:
                 list_quintuple = ''
                 for i in range(1, len(a)):
                     if i != len(a) - 1:
-                        list_quintuple = list_quintuple + convert_quintuple(a[i]) + ';;'
+                        list_quintuple = list_quintuple + convert_quintuple(a[i]) + ';'
                     else:
                         list_quintuple = list_quintuple + convert_quintuple(a[i])
                 data_dict[a[0]] = list_quintuple
