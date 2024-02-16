@@ -151,7 +151,7 @@ if __name__ == '__main__':
         report_to='wandb',
 
     )
-    data_collator = DataCollator(tokenizer, model=model)
+    data_collator = DataCollator(tokenizer)
 
 
     def postprocess_text(preds, labels):
