@@ -117,8 +117,8 @@ if __name__ == '__main__':
     # train_ds = load_from_disk('train_dataset')
     # # dev_ds  = load_from_disk('dev_dataset')
     # # test_ds = load_from_disk('test_dataset')
-    tokenizer = AutoTokenizer.from_pretrained("VietAI/vit5-base")
-    model = AutoModelForSeq2SeqLM.from_pretrained("VietAI/vit5-base")
+    tokenizer = AutoTokenizer.from_pretrained("VietAI/vit5-large")
+    model = AutoModelForSeq2SeqLM.from_pretrained("VietAI/vit5-large")
     model.cuda()
     prefix = 'Please extract five elements including subject, object, aspect, predicate, and comparison type in the sentence'
     max_input_length = 156
@@ -147,7 +147,7 @@ if __name__ == '__main__':
         per_device_eval_batch_size=16,
         weight_decay=0.01,
         save_total_limit=1,
-        num_train_epochs=50,
+        num_train_epochs=30,
         predict_with_generate=True,
         report_to='wandb',
 
