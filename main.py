@@ -148,11 +148,11 @@ if __name__ == '__main__':
         per_device_eval_batch_size=16,
         weight_decay=0.01,
         save_total_limit=1,
-        num_train_epochs=25,
+        num_train_epochs=50,
         report_to='wandb',
         load_best_model_at_end=True,
     )
-    data_collator = DataCollatorWithPadding(tokenizer)
+    data_collator = DataCollatorForSeq2Seq(tokenizer, model =model)
 
 
     def postprocess_text(preds, labels):
