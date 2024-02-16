@@ -8,7 +8,7 @@ from datasets import load_dataset
 import pyarrow as pa
 import pandas as pd
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, Seq2SeqTrainingArguments, DataCollatorForSeq2Seq, \
-    Seq2SeqTrainer, DataCollator, Trainer, TrainingArguments
+    Seq2SeqTrainer, DataCollator, Trainer, TrainingArguments, DataCollatorWithPadding
 import numpy as np
 import wandb
 wandb.login(key = '239be5b07ed02206e0e9e1c0afc955ee13a98900')
@@ -96,7 +96,7 @@ def convert_dataset(path):
                 list_quintuple = ''
                 for i in range(1, len(a)):
                     if i != len(a) - 1:
-                        list_quintuple = list_quintuple + convert_quintuple(a[i]) + ';'
+                        list_quintuple = list_quintuple + convert_quintuple(a[i]) + ';;'
                     else:
                         list_quintuple = list_quintuple + convert_quintuple(a[i])
                 data_dict[a[0]] = list_quintuple
@@ -120,7 +120,7 @@ if __name__ == '__main__':
     tokenizer = AutoTokenizer.from_pretrained("VietAI/vit5-base")
     model = AutoModelForSeq2SeqLM.from_pretrained("VietAI/vit5-base")
     model.cuda()
-    prefix = 'Please extract five elements including subject, object, aspect, predicate, and comparison type in the sentence'
+    prefix = 'Please extract five elements including subject, object, aspect, predicate, comparison type in the sentence'
     max_input_length = 156
     max_target_length = 156
 
@@ -149,9 +149,9 @@ if __name__ == '__main__':
         save_total_limit=1,
         num_train_epochs=25,
         report_to='wandb',
-
+        load_best_model_at_end=True,
     )
-    data_collator = DataCollator(tokenizer)
+    data_collator = DataCollatorWithPadding(tokenizer)
 
 
     def postprocess_text(preds, labels):
@@ -178,7 +178,7 @@ if __name__ == '__main__':
         }
 
 
-    trainer = Trainer(
+    trainer = Seq2SeqTrainer(
         model,
         args,
         train_dataset=tokenized_ds_train,
