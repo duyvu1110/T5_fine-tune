@@ -89,7 +89,7 @@ def convert_dataset(path):
         for item in senandtuple:
             a = item.split('\n')
             if len(a) == 1:
-                data_dict[a[0]] = '(None,None,None,None,None)'
+                data_dict[a[0]] = '(None, None, None, None, None)'
             elif len(a) == 2:
                 data_dict[a[0]] = convert_quintuple(a[1])
             elif len(a) > 2:
@@ -171,12 +171,12 @@ if __name__ == '__main__':
         decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
         # Some simple post-processing
         decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
-        #result = metric.compute(predictions=decoded_preds, references=decoded_labels)
+        result = metric.compute(predictions=decoded_preds, references=decoded_labels)
         #meteor_result = meteor.compute(predictions=decoded_preds, references=decoded_labels)
         #prediction_lens = [np.count_nonzero(pred != tokenizer.pad_token_id) for pred in preds]
-        f1_metric = evaluate.load('f1')
-        macro = f1_metric.compute(predictions = decoded_preds, references = decoded_labels, average = 'macro')
-        return macro
+        # f1_metric = evaluate.load('f1')
+        # macro = f1_metric.compute(predictions = decoded_preds, references = decoded_labels, average = 'macro')
+        return result
 
 
     trainer = Seq2SeqTrainer(
