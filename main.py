@@ -14,7 +14,6 @@ import wandb
 wandb.login(key = '239be5b07ed02206e0e9e1c0afc955ee13a98900')
 os.environ["WANDB_PROJECT"]="T5-finetune"
 metric = evaluate.load("sacrebleu")
-meteor = evaluate.load('meteor')
 
 
 def read_file(f_name):
@@ -60,7 +59,7 @@ def convert_quintuple(q):
         object_value = 'unknown'
     if len(quintuple["aspect"]) == 0:
         aspect_value = 'unknown'
-    formatted_output = f"{subject_value}, {object_value}, {aspect_value}, {predicate_value}, {label_value}"
+    formatted_output = f"{aspect_value}, {predicate_value}"
     res = '(' + formatted_output + ')'
     return res
 
@@ -89,7 +88,7 @@ def convert_dataset(path):
         for item in senandtuple:
             a = item.split('\n')
             if len(a) == 1:
-                data_dict[a[0]] = '(unknown, unknown, unknown, unknown, unknown)'
+                data_dict[a[0]] = '(unknown, unknown)'
             elif len(a) == 2:
                 data_dict[a[0]] = convert_quintuple(a[1])
             elif len(a) > 2:
@@ -118,9 +117,9 @@ if __name__ == '__main__':
     # # dev_ds  = load_from_disk('dev_dataset')
     # # test_ds = load_from_disk('test_dataset')
     tokenizer = AutoTokenizer.from_pretrained("VietAI/vit5-base")
-    model = AutoModelForSeq2SeqLM.from_pretrained("VietAI/vit5-base")
-    model.cuda()
-    prefix = 'Please extract five elements including subject, object, aspect, predicate, and comparison type in the sentence'
+    model = AutoModelForSeq2SeqLM.from_pretrained("duyvu8373/vit5-base-newformat")
+    # model.cuda()
+    prefix = 'Please extract two elements including aspect, predicate in the sentence'
     max_input_length = 156
     max_target_length = 156
 
@@ -139,6 +138,7 @@ if __name__ == '__main__':
     tokenized_ds_train = train_ds.map(preprocess_function, batched=True)
     #tokenized_ds_test = test_ds.map(preprocess_function, batched=True)
     tokenized_ds_dev = dev_ds.map(preprocess_function, batched=True)
+
     args = Seq2SeqTrainingArguments(
         "T5_fine_tune",
         evaluation_strategy="epoch",
