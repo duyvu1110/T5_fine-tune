@@ -89,7 +89,7 @@ def convert_dataset(path):
         for item in senandtuple:
             a = item.split('\n')
             if len(a) == 1:
-                data_dict[a[0]] = '(None, None, None, None, None)'
+                data_dict[a[0]] = '(unknown, unknown, unknown, unknown, unknown)'
             elif len(a) == 2:
                 data_dict[a[0]] = convert_quintuple(a[1])
             elif len(a) > 2:
