@@ -55,11 +55,11 @@ def convert_quintuple(q):
     predicate_value = " ".join([p.split("&&")[1] for p in quintuple["predicate"]])
     label_value = quintuple["label"]
     if len(quintuple["subject"]) == 0:
-        subject_value = 'None'
+        subject_value = 'unknown'
     if len(quintuple["object"]) == 0:
-        object_value = 'None'
+        object_value = 'unknown'
     if len(quintuple["aspect"]) == 0:
-        aspect_value = 'None'
+        aspect_value = 'unknown'
     formatted_output = f"{subject_value}, {object_value}, {aspect_value}, {predicate_value}, {label_value}"
     res = '(' + formatted_output + ')'
     return res
