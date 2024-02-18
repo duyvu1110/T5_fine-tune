@@ -59,7 +59,7 @@ def convert_quintuple(q):
         object_value = 'unknown'
     if len(quintuple["aspect"]) == 0:
         aspect_value = 'unknown'
-    formatted_output = f"{aspect_value}, {predicate_value}"
+    formatted_output = f"{subject_value}, {object_value}, {aspect_value}"
     res = '(' + formatted_output + ')'
     return res
 
@@ -88,7 +88,7 @@ def convert_dataset(path):
         for item in senandtuple:
             a = item.split('\n')
             if len(a) == 1:
-                data_dict[a[0]] = '(unknown, unknown)'
+                data_dict[a[0]] = '(unknown, unknown, unknown)'
             elif len(a) == 2:
                 data_dict[a[0]] = convert_quintuple(a[1])
             elif len(a) > 2:
@@ -117,9 +117,9 @@ if __name__ == '__main__':
     # # dev_ds  = load_from_disk('dev_dataset')
     # # test_ds = load_from_disk('test_dataset')
     tokenizer = AutoTokenizer.from_pretrained("VietAI/vit5-base")
-    model = AutoModelForSeq2SeqLM.from_pretrained("duyvu8373/vit5-base-newformat")
+    model = AutoModelForSeq2SeqLM.from_pretrained("duyvu8373/multi-task-vit5-base")
     # model.cuda()
-    prefix = 'Please extract two elements including aspect, predicate in the sentence'
+    prefix = 'Please extract three elements including subject, object and aspect in the sentence'
     max_input_length = 156
     max_target_length = 156
 
@@ -190,3 +190,4 @@ if __name__ == '__main__':
     )
     trainer.train()
     trainer.save_model()
+    trainer.push_to_hub('duyvu8373/multi-task-vit5-base')
