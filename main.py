@@ -59,7 +59,7 @@ def convert_quintuple(q):
         object_value = 'unknown'
     if len(quintuple["aspect"]) == 0:
         aspect_value = 'unknown'
-    formatted_output = f"{subject_value}, {object_value}, {aspect_value}"
+    formatted_output = f"{subject_value}, {object_value}, {aspect_value}, {predicate_value}, {label_value}"
     res = '(' + formatted_output + ')'
     return res
 
@@ -88,7 +88,8 @@ def convert_dataset(path):
         for item in senandtuple:
             a = item.split('\n')
             if len(a) == 1:
-                data_dict[a[0]] = '(unknown, unknown, unknown)'
+                continue
+                # data_dict[a[0]] = '(unknown, unknown, unknown)'
             elif len(a) == 2:
                 data_dict[a[0]] = convert_quintuple(a[1])
             elif len(a) > 2:
@@ -116,10 +117,10 @@ if __name__ == '__main__':
     # train_ds = load_from_disk('train_dataset')
     # # dev_ds  = load_from_disk('dev_dataset')
     # # test_ds = load_from_disk('test_dataset')
-    tokenizer = AutoTokenizer.from_pretrained("VietAI/vit5-base")
-    model = AutoModelForSeq2SeqLM.from_pretrained("duyvu8373/multi-task-vit5-base")
+    tokenizer = AutoTokenizer.from_pretrained("VietAI/vit5-large")
+    model = AutoModelForSeq2SeqLM.from_pretrained("VietAI/vit5-large")
     # model.cuda()
-    prefix = 'Please extract three elements including subject, object and aspect in the sentence'
+    prefix = 'Please extract three elements including subject, object, aspect, predicate and comparison type in the sentence'
     max_input_length = 156
     max_target_length = 156
 
@@ -143,11 +144,11 @@ if __name__ == '__main__':
         "T5_fine_tune",
         evaluation_strategy="epoch",
         learning_rate=2e-5,
-        per_device_train_batch_size=16,
-        per_device_eval_batch_size=16,
+        per_device_train_batch_size=1,
+        per_device_eval_batch_size=1,
         weight_decay=0.01,
         save_total_limit=1,
-        num_train_epochs=50,
+        num_train_epochs=25,
         predict_with_generate=True,
         report_to='wandb',
 
@@ -190,4 +191,3 @@ if __name__ == '__main__':
     )
     trainer.train()
     trainer.save_model()
-    trainer.push_to_hub('duyvu8373/multi-task-vit5-base')
