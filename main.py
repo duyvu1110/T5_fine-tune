@@ -14,7 +14,7 @@ import wandb
 wandb.login(key = '239be5b07ed02206e0e9e1c0afc955ee13a98900')
 os.environ["WANDB_PROJECT"]="T5-finetune"
 metric = evaluate.load("sacrebleu")
-os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:14336"
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:32"
 os.environ["TOKENIZERS_PARALLELISM"] = "true"
 import gc
 def read_file(f_name):
