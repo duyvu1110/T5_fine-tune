@@ -14,8 +14,10 @@ import wandb
 wandb.login(key = '239be5b07ed02206e0e9e1c0afc955ee13a98900')
 os.environ["WANDB_PROJECT"]="T5-finetune"
 metric = evaluate.load("sacrebleu")
-
-
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:1024"
+os.environ["WANDB_DISABLED"] = "true"
+os.environ["TOKENIZERS_PARALLELISM"] = "true"
+import gc
 def read_file(f_name):
     data = []
     with open(f_name, 'r', encoding='utf-8') as f:
@@ -140,7 +142,8 @@ if __name__ == '__main__':
     tokenized_ds_train = train_ds.map(preprocess_function, batched=True)
     #tokenized_ds_test = test_ds.map(preprocess_function, batched=True)
     tokenized_ds_dev = dev_ds.map(preprocess_function, batched=True)
-
+    del train_ds
+    del dev_ds
     args = Seq2SeqTrainingArguments(
         "T5_fine_tune",
         evaluation_strategy="epoch",
@@ -190,5 +193,6 @@ if __name__ == '__main__':
         tokenizer=tokenizer,
         compute_metrics=compute_metrics,
     )
+    gc.collect()
     trainer.train()
     trainer.save_model()
