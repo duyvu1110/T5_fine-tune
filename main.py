@@ -90,8 +90,7 @@ def convert_dataset(path):
             a = item.split('\n')
             a[0] = a[0].replace(',','')
             if len(a) == 1:
-                continue
-                # data_dict[a[0]] = '(unknown, unknown, unknown)'
+                data_dict[a[0]] = '(unknown, unknown, unknown, unknown, unknown)'
             elif len(a) == 2:
                 data_dict[a[0]] = convert_quintuple(a[1])
             elif len(a) > 2:
