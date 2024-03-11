@@ -88,6 +88,7 @@ def convert_dataset(path):
         current_sentence = None
         for item in senandtuple:
             a = item.split('\n')
+            a[0] = a[0].replace(',','')
             if len(a) == 1:
                 continue
                 # data_dict[a[0]] = '(unknown, unknown, unknown)'
@@ -103,23 +104,23 @@ def convert_dataset(path):
                 data_dict[a[0]] = list_quintuple
     # dct = {k: [v] for k, v in data_dict.items()}
     df = pd.DataFrame(list(data_dict.items()), columns=['key', 'value'])
-    # print(df.head())
+    print(df.head())
     hg_ds = Dataset.hg_dataset = Dataset(pa.Table.from_pandas(df))
     return hg_ds
 
 
 if __name__ == '__main__':
     train_ds = convert_dataset('/kaggle/working/T5_fine-tune/VLSP2023_ComOM_training_v2')
-    # train_ds.save_to_disk('train_dataset')
+#     # train_ds.save_to_disk('train_dataset')
     dev_ds = convert_dataset('/kaggle/working/T5_fine-tune/VLSP2023_ComOM_dev_v2')
-    # dev_ds.save_to_disk('dev_dataset')
-    #test_ds = convert_dataset('/kaggle/working/T5_fine-tune/VLSP2023_ComOM_testing_v2')
-    # test_ds.save_to_disk('test_dataset')
-    # train_ds = load_from_disk('train_dataset')
-    # # dev_ds  = load_from_disk('dev_dataset')
-    # # test_ds = load_from_disk('test_dataset')
+#     # dev_ds.save_to_disk('dev_dataset')
+#     #test_ds = convert_dataset('/kaggle/working/T5_fine-tune/VLSP2023_ComOM_testing_v2')
+#     # test_ds.save_to_disk('test_dataset')
+#     # train_ds = load_from_disk('train_dataset')
+#     # # dev_ds  = load_from_disk('dev_dataset')
+#     # # test_ds = load_from_disk('test_dataset')
     tokenizer = AutoTokenizer.from_pretrained("VietAI/vit5-base")
-    model = AutoModelForSeq2SeqLM.from_pretrained("VietAI/vit5-large")
+    model = AutoModelForSeq2SeqLM.from_pretrained("VietAI/vit5-base")
     model.config.use_cache = False
     # model.cuda()
     prefix = 'Please extract five elements including subject, object, aspect, predicate and comparison type in the sentence'
